@@ -6,8 +6,8 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background p-4 md:p-6 animate-fade-in">
       <header className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Sales</h1>
-        <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
+        <h1 className="text-2xl font-bold text-white">Sales</h1>
+        <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
           <span className="text-white font-semibold">S</span>
         </div>
       </header>
