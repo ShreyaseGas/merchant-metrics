@@ -6,9 +6,17 @@ import { Button } from "@/components/ui/button";
 import { useQuery } from '@tanstack/react-query';
 import { createClient } from '@supabase/supabase-js';
 
+// Initialize Supabase client with proper error handling
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+if (!supabaseUrl || !supabaseKey) {
+  console.error('Supabase credentials are missing. Please check your environment variables.');
+}
+
 const supabase = createClient(
-  import.meta.env.VITE_SUPABASE_URL,
-  import.meta.env.VITE_SUPABASE_ANON_KEY
+  supabaseUrl || '',
+  supabaseKey || ''
 );
 
 const periods = [
@@ -32,6 +40,10 @@ export const SalesChart = ({ className }: { className?: string }) => {
   const { data: salesData, isLoading } = useQuery({
     queryKey: ['sales', selectedPeriod.days],
     queryFn: async () => {
+      if (!supabaseUrl || !supabaseKey) {
+        throw new Error('Supabase credentials are missing');
+      }
+
       const endDate = new Date();
       const startDate = subDays(endDate, selectedPeriod.days);
       
@@ -76,6 +88,10 @@ export const SalesChart = ({ className }: { className?: string }) => {
       return processedData;
     }
   });
+
+  if (!supabaseUrl || !supabaseKey) {
+    return <div className="text-red-500">Error: Supabase configuration is missing</div>;
+  }
 
   return (
     <div className={cn("glass-card p-4 bg-card rounded-lg", className)}>
