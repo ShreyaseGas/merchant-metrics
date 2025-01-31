@@ -5,19 +5,6 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from "@/integrations/supabase/client";
-import { Check, ChevronsUpDown } from "lucide-react";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-} from "@/components/ui/command";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 
 const periods = [
   { label: 'Today', days: 0 },
@@ -34,10 +21,8 @@ const channels = [
 ];
 
 export const SalesChart = ({ className }: { className?: string }) => {
-  const [selectedPeriod, setSelectedPeriod] = useState(periods[1]);
+  const [selectedPeriod, setSelectedPeriod] = useState(periods[2]); // Default to 7d
   const [selectedChannels, setSelectedChannels] = useState<string[]>(channels.map(c => c.value));
-  const [open, setOpen] = useState(false);
-  const [value, setValue] = useState("");
 
   const { data: salesData = [], isLoading } = useQuery({
     queryKey: ['sales', selectedPeriod.days, selectedChannels],
@@ -88,76 +73,56 @@ export const SalesChart = ({ className }: { className?: string }) => {
     return `₹${(value / 1000).toFixed(1)}k`;
   };
 
-  const filteredChannels = channels.filter(channel =>
-    channel.label.toLowerCase().includes(value.toLowerCase())
-  ) || [];
-
   if (isLoading) {
     return <div className="h-[200px] flex items-center justify-center">Loading...</div>;
   }
 
   return (
-    <div className={cn("glass-card p-3 bg-card rounded-lg", className)}>
-      <div className="flex flex-col gap-3">
-        <h2 className="text-lg font-semibold text-white">Sales</h2>
+    <div className={cn("p-6 bg-card rounded-lg shadow-lg", className)}>
+      <h2 className="text-xl font-semibold text-white mb-4">Sales Overview</h2>
+      
+      <div className="mb-4">
+        <label className="block text-sm font-medium mb-1 text-white">Channels:</label>
         <div className="flex flex-wrap gap-2">
-          <Popover open={open} onOpenChange={setOpen}>
-            <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                role="combobox"
-                aria-expanded={open}
-                className="w-[120px] justify-between text-xs"
-              >
-                {selectedChannels.length} channel{selectedChannels.length !== 1 ? 's' : ''}
-                <ChevronsUpDown className="ml-1 h-3 w-3 shrink-0 opacity-50" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-[200px] p-0">
-              <Command value={value} onValueChange={setValue}>
-                <CommandInput placeholder="Search channels..." className="h-9" />
-                <CommandEmpty>No channel found.</CommandEmpty>
-                <CommandGroup>
-                  {filteredChannels.map((channel) => (
-                    <CommandItem
-                      key={channel.value}
-                      value={channel.value}
-                      onSelect={(currentValue) => {
-                        setSelectedChannels(prev =>
-                          prev.includes(currentValue)
-                            ? prev.filter(c => c !== currentValue)
-                            : [...prev, currentValue]
-                        );
-                      }}
-                      className="text-sm"
-                    >
-                      <Check
-                        className={cn(
-                          "mr-2 h-4 w-4",
-                          selectedChannels.includes(channel.value) ? "opacity-100" : "opacity-0"
-                        )}
-                      />
-                      {channel.label}
-                    </CommandItem>
-                  ))}
-                </CommandGroup>
-              </Command>
-            </PopoverContent>
-          </Popover>
+          {channels.map((channel) => (
+            <Button
+              key={channel.value}
+              variant={selectedChannels.includes(channel.value) ? "default" : "outline"}
+              size="sm"
+              onClick={() => {
+                setSelectedChannels(prev =>
+                  prev.includes(channel.value)
+                    ? prev.filter(c => c !== channel.value)
+                    : [...prev, channel.value]
+                );
+              }}
+              className="text-xs px-2 h-8"
+              style={{
+                backgroundColor: selectedChannels.includes(channel.value) ? channel.color : undefined,
+                borderColor: channel.color,
+                color: selectedChannels.includes(channel.value) ? '#FFFFFF' : channel.color,
+              }}
+            >
+              {channel.label}
+            </Button>
+          ))}
+        </div>
+      </div>
 
-          <div className="flex flex-wrap gap-1">
-            {periods.map((period) => (
-              <Button
-                key={period.label}
-                variant={selectedPeriod === period ? "default" : "outline"}
-                size="sm"
-                onClick={() => setSelectedPeriod(period)}
-                className="text-xs px-2 h-8"
-              >
-                {period.label}
-              </Button>
-            ))}
-          </div>
+      <div className="mb-4">
+        <label className="block text-sm font-medium mb-1 text-white">Period:</label>
+        <div className="flex flex-wrap gap-1">
+          {periods.map((period) => (
+            <Button
+              key={period.label}
+              variant={selectedPeriod === period ? "default" : "outline"}
+              size="sm"
+              onClick={() => setSelectedPeriod(period)}
+              className="text-xs px-2 h-8"
+            >
+              {period.label}
+            </Button>
+          ))}
         </div>
       </div>
       
