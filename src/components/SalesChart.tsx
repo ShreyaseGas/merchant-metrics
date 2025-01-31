@@ -37,7 +37,7 @@ export const SalesChart = ({ className }: { className?: string }) => {
   const [selectedPeriod, setSelectedPeriod] = useState(periods[1]);
   const [selectedChannels, setSelectedChannels] = useState<string[]>(channels.map(c => c.value));
   const [open, setOpen] = useState(false);
-  const [searchValue, setSearchValue] = useState("");
+  const [value, setValue] = useState("");
 
   const { data: salesData, isLoading } = useQuery({
     queryKey: ['sales', selectedPeriod.days, selectedChannels],
@@ -91,13 +91,13 @@ export const SalesChart = ({ className }: { className?: string }) => {
     return `₹${(value / 1000).toFixed(1)}k`;
   };
 
+  const filteredChannels = channels.filter(channel =>
+    channel.label.toLowerCase().includes(value.toLowerCase())
+  );
+
   if (isLoading) {
     return <div className="h-[200px] flex items-center justify-center">Loading...</div>;
   }
-
-  const filteredChannels = channels.filter(channel =>
-    channel.label.toLowerCase().includes(searchValue.toLowerCase())
-  );
 
   return (
     <div className={cn("glass-card p-3 bg-card rounded-lg", className)}>
@@ -117,11 +117,11 @@ export const SalesChart = ({ className }: { className?: string }) => {
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-[200px] p-0">
-              <Command value={searchValue} onValueChange={setSearchValue}>
+              <Command value={value} onValueChange={setValue}>
                 <CommandInput placeholder="Search channels..." className="h-9" />
                 <CommandEmpty>No channel found.</CommandEmpty>
                 <CommandGroup>
-                  {(filteredChannels || []).map((channel) => (
+                  {filteredChannels.map((channel) => (
                     <CommandItem
                       key={channel.value}
                       value={channel.value}
