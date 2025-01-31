@@ -34,9 +34,10 @@ const channels = [
 ];
 
 export const SalesChart = ({ className }: { className?: string }) => {
-  const [selectedPeriod, setSelectedPeriod] = useState(periods[1]); // Default to Last 3 days
+  const [selectedPeriod, setSelectedPeriod] = useState(periods[1]);
   const [selectedChannels, setSelectedChannels] = useState<string[]>(channels.map(c => c.value));
   const [open, setOpen] = useState(false);
+  const [searchValue, setSearchValue] = useState("");
 
   const { data: salesData, isLoading } = useQuery({
     queryKey: ['sales', selectedPeriod.days, selectedChannels],
@@ -114,7 +115,7 @@ export const SalesChart = ({ className }: { className?: string }) => {
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-[200px] p-0">
-              <Command value="" shouldFilter={false}>
+              <Command value={searchValue} onValueChange={setSearchValue}>
                 <CommandInput placeholder="Search channels..." />
                 <CommandEmpty>No channel found.</CommandEmpty>
                 <CommandGroup>
