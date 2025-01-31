@@ -95,6 +95,10 @@ export const SalesChart = ({ className }: { className?: string }) => {
     return <div className="h-[300px] flex items-center justify-center">Loading...</div>;
   }
 
+  const filteredChannels = channels.filter(channel =>
+    channel.label.toLowerCase().includes(searchValue.toLowerCase())
+  );
+
   return (
     <div className={cn("glass-card p-4 bg-card rounded-lg", className)}>
       <div className="flex justify-between items-center mb-4">
@@ -119,7 +123,7 @@ export const SalesChart = ({ className }: { className?: string }) => {
                 <CommandInput placeholder="Search channels..." />
                 <CommandEmpty>No channel found.</CommandEmpty>
                 <CommandGroup>
-                  {channels.map((channel) => (
+                  {filteredChannels.map((channel) => (
                     <CommandItem
                       key={channel.value}
                       value={channel.value}
