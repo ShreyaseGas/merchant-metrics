@@ -61,7 +61,7 @@ export const SalesChart = ({ className }: { className?: string }) => {
       if (error) throw error;
       
       // Process data for chart
-      const processedData = data.reduce((acc: any[], sale: any) => {
+      const processedData = (data || []).reduce((acc: any[], sale: any) => {
         const date = format(new Date(sale.sale_date), 'dd/MM');
         const existingDay = acc.find(item => item.name === date);
         
@@ -91,13 +91,13 @@ export const SalesChart = ({ className }: { className?: string }) => {
     return `₹${(value / 1000).toFixed(1)}k`;
   };
 
-  if (isLoading) {
-    return <div className="h-[200px] flex items-center justify-center">Loading...</div>;
-  }
-
   const filteredChannels = channels.filter(channel =>
     channel.label.toLowerCase().includes(searchValue.toLowerCase())
   );
+
+  if (isLoading) {
+    return <div className="h-[200px] flex items-center justify-center">Loading...</div>;
+  }
 
   return (
     <div className={cn("glass-card p-3 bg-card rounded-lg", className)}>
@@ -121,7 +121,7 @@ export const SalesChart = ({ className }: { className?: string }) => {
                 <CommandInput placeholder="Search channels..." className="h-9" />
                 <CommandEmpty>No channel found.</CommandEmpty>
                 <CommandGroup>
-                  {filteredChannels.map((channel) => (
+                  {(filteredChannels || []).map((channel) => (
                     <CommandItem
                       key={channel.value}
                       value={channel.value}
