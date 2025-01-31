@@ -122,11 +122,11 @@ export const SalesChart = ({ className }: { className?: string }) => {
                     <CommandItem
                       key={channel.value}
                       value={channel.value}
-                      onSelect={() => {
+                      onSelect={(currentValue) => {
                         setSelectedChannels(prev =>
-                          prev.includes(channel.value)
-                            ? prev.filter(c => c !== channel.value)
-                            : [...prev, channel.value]
+                          prev.includes(currentValue)
+                            ? prev.filter(c => c !== currentValue)
+                            : [...prev, currentValue]
                         );
                       }}
                     >
