@@ -35,7 +35,7 @@ const channels = [
 
 export const SalesChart = ({ className }: { className?: string }) => {
   const [selectedPeriod, setSelectedPeriod] = useState(periods[1]); // Default to Last 3 days
-  const [selectedChannels, setSelectedChannels] = useState(channels.map(c => c.value));
+  const [selectedChannels, setSelectedChannels] = useState<string[]>(channels.map(c => c.value));
   const [open, setOpen] = useState(false);
 
   const { data: salesData, isLoading } = useQuery({
@@ -90,6 +90,10 @@ export const SalesChart = ({ className }: { className?: string }) => {
     return `₹${(value / 1000).toFixed(1)}k`;
   };
 
+  if (isLoading) {
+    return <div className="h-[300px] flex items-center justify-center">Loading...</div>;
+  }
+
   return (
     <div className={cn("glass-card p-4 bg-card rounded-lg", className)}>
       <div className="flex justify-between items-center mb-4">
@@ -117,6 +121,7 @@ export const SalesChart = ({ className }: { className?: string }) => {
                   {channels.map((channel) => (
                     <CommandItem
                       key={channel.value}
+                      value={channel.value}
                       onSelect={() => {
                         setSelectedChannels(prev =>
                           prev.includes(channel.value)
@@ -157,7 +162,7 @@ export const SalesChart = ({ className }: { className?: string }) => {
       
       <div className="h-[300px] mt-4">
         <ResponsiveContainer width="100%" height="100%">
-          <ComposedChart data={salesData}>
+          <ComposedChart data={salesData || []}>
             <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
             <XAxis 
               dataKey="name" 
