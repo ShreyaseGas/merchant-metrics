@@ -114,7 +114,7 @@ export const SalesChart = ({ className }: { className?: string }) => {
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-[200px] p-0">
-              <Command>
+              <Command value="" shouldFilter={false}>
                 <CommandInput placeholder="Search channels..." />
                 <CommandEmpty>No channel found.</CommandEmpty>
                 <CommandGroup>
