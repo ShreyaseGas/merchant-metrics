@@ -5,13 +5,14 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from "@/integrations/supabase/client";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const periods = [
-  { label: 'Today', days: 0 },
-  { label: '3d', days: 3 },
-  { label: '7d', days: 7 },
-  { label: '14d', days: 14 },
-  { label: '30d', days: 30 },
+  { label: 'Today', days: 0, value: 'today' },
+  { label: '3d', days: 3, value: '3d' },
+  { label: '7d', days: 7, value: '7d' },
+  { label: '14d', days: 14, value: '14d' },
+  { label: '30d', days: 30, value: '30d' },
 ];
 
 const channels = [
@@ -81,48 +82,55 @@ export const SalesChart = ({ className }: { className?: string }) => {
     <div className={cn("p-6 bg-card rounded-lg shadow-lg", className)}>
       <h2 className="text-xl font-semibold text-white mb-4">Sales Overview</h2>
       
-      <div className="mb-4">
-        <label className="block text-sm font-medium mb-1 text-white">Channels:</label>
-        <div className="flex flex-wrap gap-2">
-          {channels.map((channel) => (
-            <Button
-              key={channel.value}
-              variant={selectedChannels.includes(channel.value) ? "default" : "outline"}
-              size="sm"
-              onClick={() => {
-                setSelectedChannels(prev =>
-                  prev.includes(channel.value)
-                    ? prev.filter(c => c !== channel.value)
-                    : [...prev, channel.value]
-                );
-              }}
-              className="text-xs px-2 h-8"
-              style={{
-                backgroundColor: selectedChannels.includes(channel.value) ? channel.color : undefined,
-                borderColor: channel.color,
-                color: selectedChannels.includes(channel.value) ? '#FFFFFF' : channel.color,
-              }}
-            >
-              {channel.label}
-            </Button>
-          ))}
+      <div className="flex items-center justify-between mb-4 gap-4">
+        <div className="flex-1">
+          <label className="block text-sm font-medium mb-1 text-white">Channels:</label>
+          <div className="flex flex-wrap gap-2">
+            {channels.map((channel) => (
+              <Button
+                key={channel.value}
+                variant={selectedChannels.includes(channel.value) ? "default" : "outline"}
+                size="sm"
+                onClick={() => {
+                  setSelectedChannels(prev =>
+                    prev.includes(channel.value)
+                      ? prev.filter(c => c !== channel.value)
+                      : [...prev, channel.value]
+                  );
+                }}
+                className="text-xs px-2 h-8"
+                style={{
+                  backgroundColor: selectedChannels.includes(channel.value) ? channel.color : undefined,
+                  borderColor: channel.color,
+                  color: selectedChannels.includes(channel.value) ? '#FFFFFF' : channel.color,
+                }}
+              >
+                {channel.label}
+              </Button>
+            ))}
+          </div>
         </div>
-      </div>
 
-      <div className="mb-4">
-        <label className="block text-sm font-medium mb-1 text-white">Period:</label>
-        <div className="flex flex-wrap gap-1">
-          {periods.map((period) => (
-            <Button
-              key={period.label}
-              variant={selectedPeriod === period ? "default" : "outline"}
-              size="sm"
-              onClick={() => setSelectedPeriod(period)}
-              className="text-xs px-2 h-8"
-            >
-              {period.label}
-            </Button>
-          ))}
+        <div className="w-[200px]">
+          <label className="block text-sm font-medium mb-1 text-white">Period:</label>
+          <Select
+            value={selectedPeriod.value}
+            onValueChange={(value) => {
+              const period = periods.find(p => p.value === value);
+              if (period) setSelectedPeriod(period);
+            }}
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Select period" />
+            </SelectTrigger>
+            <SelectContent>
+              {periods.map((period) => (
+                <SelectItem key={period.value} value={period.value}>
+                  {period.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       </div>
       

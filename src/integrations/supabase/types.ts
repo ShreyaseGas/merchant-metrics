@@ -313,6 +313,7 @@ export type Database = {
       }
       sales: {
         Row: {
+          average_sale_price: number
           platform_id: string | null
           product_id: string | null
           quantity: number
@@ -320,9 +321,11 @@ export type Database = {
           sale_id: string
           status: string | null
           total_amount: number
+          total_sale: number
           user_id: string | null
         }
         Insert: {
+          average_sale_price: number
           platform_id?: string | null
           product_id?: string | null
           quantity: number
@@ -330,9 +333,11 @@ export type Database = {
           sale_id?: string
           status?: string | null
           total_amount: number
+          total_sale: number
           user_id?: string | null
         }
         Update: {
+          average_sale_price?: number
           platform_id?: string | null
           product_id?: string | null
           quantity?: number
@@ -340,6 +345,7 @@ export type Database = {
           sale_id?: string
           status?: string | null
           total_amount?: number
+          total_sale?: number
           user_id?: string | null
         }
         Relationships: [

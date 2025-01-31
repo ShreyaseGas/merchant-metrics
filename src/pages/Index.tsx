@@ -11,7 +11,8 @@ const Index = () => {
         .from('sales')
         .select(`
           total_amount,
-          quantity
+          quantity,
+          platforms (name)
         `);
 
       if (error) throw error;
@@ -19,11 +20,13 @@ const Index = () => {
       const totalSales = salesData.reduce((sum, sale) => sum + Number(sale.total_amount), 0);
       const totalOrders = salesData.length;
       const totalUnits = salesData.reduce((sum, sale) => sum + Number(sale.quantity), 0);
+      const averageOrderValue = totalOrders > 0 ? totalSales / totalOrders : 0;
 
       return {
         totalSales,
         totalOrders,
-        totalUnits
+        totalUnits,
+        averageOrderValue
       };
     }
   });
@@ -44,7 +47,7 @@ const Index = () => {
       <div className="grid gap-3">
         <SalesChart className="animate-fade-in" />
         
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-4 gap-3">
           <StatsCard 
             title="Total Sales" 
             value={stats ? formatCurrency(stats.totalSales) : '₹0'}
@@ -59,6 +62,11 @@ const Index = () => {
             title="Units" 
             value={stats?.totalUnits || 0}
             className="animate-fade-in [animation-delay:300ms]"
+          />
+          <StatsCard 
+            title="AOV" 
+            value={stats ? formatCurrency(stats.averageOrderValue) : '₹0'}
+            className="animate-fade-in [animation-delay:400ms]"
           />
         </div>
       </div>
