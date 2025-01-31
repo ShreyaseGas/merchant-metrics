@@ -28,6 +28,11 @@ export const SalesChart = ({ className }: { className?: string }) => {
   const { data: salesData = [], isLoading } = useQuery({
     queryKey: ['sales', selectedPeriod.days, selectedChannels],
     queryFn: async () => {
+      console.log('Fetching sales data with params:', { 
+        period: selectedPeriod, 
+        channels: selectedChannels 
+      });
+
       const endDate = new Date();
       const startDate = subDays(endDate, selectedPeriod.days);
       
@@ -37,16 +42,23 @@ export const SalesChart = ({ className }: { className?: string }) => {
           total_amount,
           quantity,
           sale_date,
-          platforms (name)
+          platform_id,
+          platforms!inner (
+            name
+          )
         `)
         .gte('sale_date', startDate.toISOString())
         .lte('sale_date', endDate.toISOString())
-        .in('platforms.name', selectedChannels)
-        .order('sale_date', { ascending: true });
+        .in('platforms.name', selectedChannels);
 
-      if (error) throw error;
-      
-      return (data || []).reduce((acc: any[], sale: any) => {
+      if (error) {
+        console.error('Error fetching sales data:', error);
+        throw error;
+      }
+
+      console.log('Raw sales data:', data);
+
+      const processedData = (data || []).reduce((acc: any[], sale: any) => {
         const date = format(new Date(sale.sale_date), 'dd/MM');
         const existingDay = acc.find(item => item.name === date);
         
@@ -55,8 +67,7 @@ export const SalesChart = ({ className }: { className?: string }) => {
           const channelValues = selectedChannels.map(channel => 
             typeof existingDay[channel] === 'number' ? existingDay[channel] : 0
           );
-          const totalAmount = channelValues.reduce((sum, val) => sum + val, 0);
-          existingDay.average = totalAmount / selectedChannels.length;
+          existingDay.average = channelValues.reduce((sum, val) => sum + val, 0) / selectedChannels.length;
         } else {
           const newDay = {
             name: date,
@@ -67,6 +78,9 @@ export const SalesChart = ({ className }: { className?: string }) => {
         }
         return acc;
       }, []);
+
+      console.log('Processed sales data:', processedData);
+      return processedData;
     }
   });
 

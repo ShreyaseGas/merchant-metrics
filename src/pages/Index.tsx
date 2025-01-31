@@ -7,6 +7,7 @@ const Index = () => {
   const { data: stats, isLoading } = useQuery({
     queryKey: ['sales-stats'],
     queryFn: async () => {
+      console.log('Fetching sales stats...');
       const { data: salesData, error } = await supabase
         .from('sales')
         .select(`
@@ -15,12 +16,19 @@ const Index = () => {
           platforms (name)
         `);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching sales stats:', error);
+        throw error;
+      }
+
+      console.log('Sales data received:', salesData);
 
       const totalSales = salesData.reduce((sum, sale) => sum + Number(sale.total_amount), 0);
       const totalOrders = salesData.length;
       const totalUnits = salesData.reduce((sum, sale) => sum + Number(sale.quantity), 0);
       const averageOrderValue = totalOrders > 0 ? totalSales / totalOrders : 0;
+
+      console.log('Calculated stats:', { totalSales, totalOrders, totalUnits, averageOrderValue });
 
       return {
         totalSales,
