@@ -39,7 +39,7 @@ export const SalesChart = ({ className }: { className?: string }) => {
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState("");
 
-  const { data: salesData, isLoading } = useQuery({
+  const { data: salesData = [], isLoading } = useQuery({
     queryKey: ['sales', selectedPeriod.days, selectedChannels],
     queryFn: async () => {
       const endDate = new Date();
@@ -60,8 +60,7 @@ export const SalesChart = ({ className }: { className?: string }) => {
 
       if (error) throw error;
       
-      // Process data for chart
-      const processedData = (data || []).reduce((acc: any[], sale: any) => {
+      return (data || []).reduce((acc: any[], sale: any) => {
         const date = format(new Date(sale.sale_date), 'dd/MM');
         const existingDay = acc.find(item => item.name === date);
         
@@ -82,8 +81,6 @@ export const SalesChart = ({ className }: { className?: string }) => {
         }
         return acc;
       }, []);
-
-      return processedData;
     }
   });
 
@@ -93,7 +90,7 @@ export const SalesChart = ({ className }: { className?: string }) => {
 
   const filteredChannels = channels.filter(channel =>
     channel.label.toLowerCase().includes(value.toLowerCase())
-  );
+  ) || [];
 
   if (isLoading) {
     return <div className="h-[200px] flex items-center justify-center">Loading...</div>;
@@ -166,7 +163,7 @@ export const SalesChart = ({ className }: { className?: string }) => {
       
       <div className="h-[200px] mt-4">
         <ResponsiveContainer width="100%" height="100%">
-          <ComposedChart data={salesData || []} margin={{ top: 5, right: 5, bottom: 5, left: 5 }}>
+          <ComposedChart data={salesData} margin={{ top: 5, right: 5, bottom: 5, left: 5 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
             <XAxis 
               dataKey="name" 
