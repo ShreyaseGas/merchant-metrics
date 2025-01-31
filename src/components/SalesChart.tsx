@@ -65,15 +65,17 @@ export const SalesChart = ({ className }: { className?: string }) => {
         const existingDay = acc.find(item => item.name === date);
         
         if (existingDay) {
-          existingDay[sale.platforms.name] = (existingDay[sale.platforms.name] || 0) + sale.total_amount;
-          existingDay.average = Object.values(existingDay)
-            .filter(val => typeof val === 'number' && val !== existingDay.average)
-            .reduce((sum: number, val: number) => sum + val, 0) / selectedChannels.length;
+          existingDay[sale.platforms.name] = (existingDay[sale.platforms.name] || 0) + Number(sale.total_amount);
+          const channelValues = selectedChannels.map(channel => 
+            typeof existingDay[channel] === 'number' ? existingDay[channel] : 0
+          );
+          const totalAmount = channelValues.reduce((sum, val) => sum + val, 0);
+          existingDay.average = totalAmount / selectedChannels.length;
         } else {
           const newDay = {
             name: date,
-            [sale.platforms.name]: sale.total_amount,
-            average: sale.total_amount / selectedChannels.length
+            [sale.platforms.name]: Number(sale.total_amount),
+            average: Number(sale.total_amount) / selectedChannels.length
           };
           acc.push(newDay);
         }
