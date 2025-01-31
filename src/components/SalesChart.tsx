@@ -21,10 +21,10 @@ import {
 
 const periods = [
   { label: 'Today', days: 0 },
-  { label: 'Last 3 days', days: 3 },
-  { label: 'Last 7 days', days: 7 },
-  { label: 'Last 14 days', days: 14 },
-  { label: 'Last 30 days', days: 30 },
+  { label: '3d', days: 3 },
+  { label: '7d', days: 7 },
+  { label: '14d', days: 14 },
+  { label: '30d', days: 30 },
 ];
 
 const channels = [
@@ -62,7 +62,7 @@ export const SalesChart = ({ className }: { className?: string }) => {
       
       // Process data for chart
       const processedData = data.reduce((acc: any[], sale: any) => {
-        const date = format(new Date(sale.sale_date), 'd/dd');
+        const date = format(new Date(sale.sale_date), 'dd/MM');
         const existingDay = acc.find(item => item.name === date);
         
         if (existingDay) {
@@ -92,7 +92,7 @@ export const SalesChart = ({ className }: { className?: string }) => {
   };
 
   if (isLoading) {
-    return <div className="h-[300px] flex items-center justify-center">Loading...</div>;
+    return <div className="h-[200px] flex items-center justify-center">Loading...</div>;
   }
 
   const filteredChannels = channels.filter(channel =>
@@ -100,27 +100,25 @@ export const SalesChart = ({ className }: { className?: string }) => {
   );
 
   return (
-    <div className={cn("glass-card p-4 bg-card rounded-lg", className)}>
-      <div className="flex justify-between items-center mb-4">
+    <div className={cn("glass-card p-3 bg-card rounded-lg", className)}>
+      <div className="flex flex-col gap-3">
         <h2 className="text-lg font-semibold text-white">Sales</h2>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger asChild>
               <Button
                 variant="outline"
                 role="combobox"
                 aria-expanded={open}
-                className="justify-between min-w-[150px]"
+                className="w-[120px] justify-between text-xs"
               >
-                {selectedChannels.length > 0
-                  ? `${selectedChannels.length} selected`
-                  : "Select channels"}
-                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                {selectedChannels.length} channel{selectedChannels.length !== 1 ? 's' : ''}
+                <ChevronsUpDown className="ml-1 h-3 w-3 shrink-0 opacity-50" />
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-[200px] p-0">
               <Command value={searchValue} onValueChange={setSearchValue}>
-                <CommandInput placeholder="Search channels..." />
+                <CommandInput placeholder="Search channels..." className="h-9" />
                 <CommandEmpty>No channel found.</CommandEmpty>
                 <CommandGroup>
                   {filteredChannels.map((channel) => (
@@ -134,6 +132,7 @@ export const SalesChart = ({ className }: { className?: string }) => {
                             : [...prev, currentValue]
                         );
                       }}
+                      className="text-sm"
                     >
                       <Check
                         className={cn(
@@ -149,14 +148,14 @@ export const SalesChart = ({ className }: { className?: string }) => {
             </PopoverContent>
           </Popover>
 
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-1">
             {periods.map((period) => (
               <Button
                 key={period.label}
                 variant={selectedPeriod === period ? "default" : "outline"}
                 size="sm"
                 onClick={() => setSelectedPeriod(period)}
-                className="whitespace-nowrap"
+                className="text-xs px-2 h-8"
               >
                 {period.label}
               </Button>
@@ -165,30 +164,33 @@ export const SalesChart = ({ className }: { className?: string }) => {
         </div>
       </div>
       
-      <div className="h-[300px] mt-4">
+      <div className="h-[200px] mt-4">
         <ResponsiveContainer width="100%" height="100%">
-          <ComposedChart data={salesData || []}>
+          <ComposedChart data={salesData || []} margin={{ top: 5, right: 5, bottom: 5, left: 5 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
             <XAxis 
               dataKey="name" 
               stroke="#8A898C"
-              tick={{ fill: '#8A898C' }}
+              tick={{ fill: '#8A898C', fontSize: 10 }}
+              tickMargin={5}
             />
             <YAxis 
               stroke="#8A898C"
-              tick={{ fill: '#8A898C' }}
+              tick={{ fill: '#8A898C', fontSize: 10 }}
               tickFormatter={formatYAxis}
+              tickMargin={5}
             />
             <Tooltip
               contentStyle={{
                 backgroundColor: "rgba(26, 31, 44, 0.9)",
                 border: "1px solid rgba(255,255,255,0.1)",
                 borderRadius: "8px",
-                color: "#fff"
+                color: "#fff",
+                fontSize: "12px"
               }}
               formatter={(value: number) => [`₹${(value / 1000).toFixed(1)}k`, '']}
             />
-            <Legend />
+            <Legend wrapperStyle={{ fontSize: '10px' }} />
             {channels.map((channel) => (
               selectedChannels.includes(channel.value) && (
                 <Bar
@@ -197,6 +199,7 @@ export const SalesChart = ({ className }: { className?: string }) => {
                   fill={channel.color}
                   radius={[4, 4, 0, 0]}
                   name={channel.label}
+                  barSize={20}
                 />
               )
             ))}

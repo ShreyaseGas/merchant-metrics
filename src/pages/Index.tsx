@@ -1,39 +1,66 @@
+import { useQuery } from '@tanstack/react-query';
 import { SalesChart } from "@/components/SalesChart";
 import { StatsCard } from "@/components/StatsCard";
-import { TopSkusTable } from "@/components/TopSkusTable";
+import { supabase } from "@/integrations/supabase/client";
 
 const Index = () => {
+  const { data: stats } = useQuery({
+    queryKey: ['sales-stats'],
+    queryFn: async () => {
+      const { data: salesData, error } = await supabase
+        .from('sales')
+        .select(`
+          total_amount,
+          quantity
+        `);
+
+      if (error) throw error;
+
+      const totalSales = salesData.reduce((sum, sale) => sum + Number(sale.total_amount), 0);
+      const totalOrders = salesData.length;
+      const totalUnits = salesData.reduce((sum, sale) => sum + Number(sale.quantity), 0);
+
+      return {
+        totalSales,
+        totalOrders,
+        totalUnits
+      };
+    }
+  });
+
+  const formatCurrency = (amount: number) => {
+    return `₹${(amount / 1000).toFixed(1)}k`;
+  };
+
   return (
-    <div className="min-h-screen bg-background p-4 md:p-6 animate-fade-in">
-      <header className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-white">Sales</h1>
+    <div className="min-h-screen bg-background p-3 animate-fade-in">
+      <header className="flex justify-between items-center mb-4">
+        <h1 className="text-xl font-bold text-white">Sales</h1>
         <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
           <span className="text-white font-semibold">S</span>
         </div>
       </header>
 
-      <div className="grid gap-4 md:gap-6">
+      <div className="grid gap-3">
         <SalesChart className="animate-fade-in" />
         
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-3 gap-3">
           <StatsCard 
             title="Total Sales" 
-            value="₹9,80,273.00"
+            value={stats ? formatCurrency(stats.totalSales) : '₹0'}
             className="animate-fade-in [animation-delay:100ms]"
           />
           <StatsCard 
-            title="Open Orders" 
-            value="12"
+            title="Orders" 
+            value={stats?.totalOrders || 0}
             className="animate-fade-in [animation-delay:200ms]"
           />
           <StatsCard 
-            title="Order Units" 
-            value="5"
+            title="Units" 
+            value={stats?.totalUnits || 0}
             className="animate-fade-in [animation-delay:300ms]"
           />
         </div>
-
-        <TopSkusTable className="animate-fade-in [animation-delay:400ms]" />
       </div>
     </div>
   );
