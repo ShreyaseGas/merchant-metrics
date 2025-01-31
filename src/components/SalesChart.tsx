@@ -91,13 +91,13 @@ export const SalesChart = ({ className }: { className?: string }) => {
     return `₹${(value / 1000).toFixed(1)}k`;
   };
 
-  const filteredChannels = channels.filter(channel =>
-    channel.label.toLowerCase().includes(searchValue.toLowerCase())
-  );
-
   if (isLoading) {
     return <div className="h-[200px] flex items-center justify-center">Loading...</div>;
   }
+
+  const filteredChannels = channels.filter(channel =>
+    channel.label.toLowerCase().includes(searchValue.toLowerCase())
+  );
 
   return (
     <div className={cn("glass-card p-3 bg-card rounded-lg", className)}>
